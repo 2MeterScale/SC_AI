@@ -4,11 +4,10 @@ import re
 from periodictable import elements
 
 # フォルダパスを指定
-folder_path = '/candidate_material_list_final'
-output_folder = '/output_vectors'
+folder_path = 'candidate_material_list_final'
+output_folder = 'output_vectors'
 
 # 出力フォルダが存在しない場合は作成
-os.makedirs(output_folder, exist_ok=True)
 
 # 元素記号から原子番号への対応辞書を作成
 element_to_atomic_number = {str(e.symbol): e.number for e in elements if e.number is not None}
@@ -22,7 +21,7 @@ def formula_to_vector(formula):
         if atomic_number is not None:
             count = float(count) if count else 1.0  # 数が省略されている場合は1
             vector.append((atomic_number, count))
-    vector = [item for pair in sorted(vector) for item in pair]  # ソートしてフラットなリストに変換
+    vector = [item for pair in vector for item in pair]  # ソートしてフラットなリストに変換
     return vector
 
 # フォルダ内の全てのCSVファイルを処理
