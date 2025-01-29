@@ -86,3 +86,24 @@ for epoch in range(epochs):
         fake_inputs = G(noise)
         fake_outputs = D(fake_inputs)
         fake_label = torch.zeros(fake_inputs.shape[0], 1).to(device)
+
+        outputs = torch.cat((real_outputs, fake_outputs), 0)
+        targets = torch.cat((real_label, fake_label), 0)
+
+        D_loss = loss(outputs, targets)
+        D_optimizer.zero_grad()
+        D_loss.backward()
+        D_optimizer.step()
+
+        noise = (torch.rand(real_inputs.shape[0], 128)-0.5)/0.5
+        noise = noise.to(device)
+
+        fake_inputs = G(noise)
+        fake_outputs = D(fake_inputs)
+        fake_targets = torch.ones([fake_inputs.shape[0], 1]).to(device)
+        G_loss = loss(fake_outputs, fake_targets)
+        G_optimizer.zero_grad()
+        G_loss.backward()
+        G_optimizer.step()
+
+        
