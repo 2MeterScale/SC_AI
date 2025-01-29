@@ -11,7 +11,8 @@ import matplotlib as plt
 
 #GPU使えるか確認
 
-torch.backends.mps.is_available()
+device = torch.device('mps' if torch.mps.is_available() else 'cpu')
+print("Device =" device)
 
 # ネットワーク・アーキテクチャの定義
 
@@ -42,12 +43,46 @@ class generator(nn.Module):
         return nn.tanh()(x)
 
 # ハイパーパラメタ設定
-epoch = 30
+epochs = 30
 lr = 2e-4
 batch_size = 64
 loss = nn.BCELoss()
 
 # モデル
 
+G = generator().to(device)
+D = discriminator().to(device)
 
+G_optimizer = optim.Adam(G.parameters(), lr=lr, betas=(0.5, 0.999))
+D_optimizer = optim.Adam(D.parameters(), lr=lr, betas=(0.5, 0.999))
 
+# データローダーの作成
+
+# transform
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5))])
+
+# load data
+
+train_set = datasets.MNIST('mnist/', train=True, download=True, transform=transform)
+train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+
+# 学習
+# 識別器と生成器の損失はステップごとに更新
+# 判別器は本物と偽物を分類することを目的とする
+# 生成器は可能な限りリアルな画像を生成することを目的とする
+
+for epoch in range(epochs):
+    for idx, (imgs, _) in enumerate(train_loader):
+        idx += 1
+
+    
+        # 1 for real, 0 for fake
+        real_inputs = imgs.to(device)
+        real_outputs = D(real_inputs)
+        real_label = torch.ones(real_inputs.shape[0], 1).to(device)
+
+        noise = (torch.rand(real_inputs.shape[0], 128) - 0.5)/0.5
+        noise = noise.to(device)
+        fake_inputs = G(noise)
+        fake_outputs = D(fake_inputs)
+        fake_label = torch.zeros(fake_inputs.shape[0], 1).to(device)
