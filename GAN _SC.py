@@ -16,8 +16,8 @@ output_folder = 'output_vectors/generated_compositions'
 os.makedirs(output_folder, exist_ok=True)
 
 latent_dim = 64           # 潜在ベクトルの次元
-max_atomic_number = 100   # 扱う原子番号の最大値（データに合わせて調整）
-clip_value = 5.0          # 1つの元素カウントの上限 (適宜調整)
+max_atomic_number = 100   # 扱う原子番号の最大値
+clip_value = 5.0          # 1つの元素カウントの上限
 
 # 除外したい元素（例: N, Hg, Pb 等）
 excluded_symbols = {
@@ -65,8 +65,7 @@ excluded_symbols = {
     "Ts",  # テネシン
     "Og",  # オガネソン
 
-    # ユーザ例にあった"N"（通常は毒性元素ではないが、要望に合わせて含む）
-    "N"    # 窒素（単体としては安定だが、窒素酸化物など一部毒性化合物に注意）
+    "N"    # 窒素（研究室で合成ができないので除外）
 }
 excluded_atomic_numbers = [elements.symbol(sym).number for sym in excluded_symbols]
 
@@ -121,7 +120,7 @@ X_train = X_raw / max_val
 
 # 学習データが全て除外されてしまった場合のガード
 if X_train.shape[0] == 0:
-    raise ValueError("全てのデータが除外され、学習できるサンプルがありません。excluded_symbols を見直してください。")
+    raise ValueError("excluded_symbolを見直してください")
 
 print(f"Filtered dataset size: {X_train.shape[0]}")
 
